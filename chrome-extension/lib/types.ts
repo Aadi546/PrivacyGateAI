@@ -1,0 +1,9 @@
+export type Requirements = { formats: string[]; max_bytes: number; required_fields: string[]; source?: string };
+export const DEFAULT_REQUIREMENTS: Requirements = {formats: ['pdf', 'png', 'jpeg'], max_bytes: 2 * 1024 * 1024, required_fields: [], source: 'Controlled scholarship portal'};
+export type Finding = {id: string; category: string; label: string; masked_value: string; page: number; locatable: boolean; reason: string; recommended: boolean; checksum_valid: boolean | null; confidence: string};
+export type Verification = {status: 'passed_supported_checks' | 'failed' | 'incomplete'; approved_count: number; preserved_last_four: boolean; technical_compatibility: boolean; output_size: number; mime: string; limitations: string; checks: {finding_id: string; removed: boolean; replacement_rendered: boolean}[]};
+export type Report = {session_id: string; filename: string; size: number; pages: number; classification: string; findings: Finding[]; limitations: string[]; can_redact: boolean; coverage: string; processing_path: string; elapsed_ms: number; warnings: string[]; authentication: {signature_indicator: boolean; qr_status: string}; compatibility: {size_ok: boolean; format_ok: boolean; max_bytes: number}; trace: {agent: string; tool: string; detail: string}[]};
+export type Operation = 'health' | 'analyze' | 'redact' | 'preview' | 'download' | 'delete' | 'sample';
+export type ApiPayload = {operation: Operation; session?: string; filename?: string; file?: string; requirements?: Requirements; finding_ids?: string[]; variant?: string; sample?: string};
+export type Binary = {base64: string; mime: string};
+export type Reply = {ok: boolean; data?: unknown; error?: string};

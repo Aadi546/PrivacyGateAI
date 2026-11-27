@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Scholarship application — PrivacyGate demo</title>
+  <link rel="icon" href="/static/favicon.svg"><link rel="stylesheet" href="/static/styles.css"><link rel="stylesheet" href="/static/portal.css">
+  <script type="module" src="/static/portal.js"></script>
+</head>
+<body class="portal-body">
+  <header class="portal-top"><a href="/" class="brand"><span class="brand-mark" data-icon="shield"></span><span>PrivacyGate<span class="brand-ai">AI</span></span></a><span class="prototype-tag">CONTROLLED DEMO PORTAL</span><a href="/" class="button button-white"><span data-icon="shield-check"></span>Open document check</a></header>
+  <main class="portal-main">
+    <a href="/" class="portal-back">Open local document workspace</a>
+    <div class="portal-intro"><span class="scholarship-icon" data-icon="graduation"></span><span class="eyebrow">EDUCATION, WITH OPPORTUNITY.</span><h1>A small step toward<br>your next chapter.</h1><p>A fictional scholarship application to demonstrate inspection before uploading. Nothing is sent to a real service.</p></div>
+    <section class="panel scholarship-panel">
+      <div class="scholarship-heading"><div><h2>Scholarship application</h2><p>Document submission · controlled prototype</p></div><span class="subtle-badge">DEMO ONLY</span></div>
+      <div class="portal-privacy-banner"><span data-icon="lock"></span><p>The selected file stays in your browser. Submission is simulated; no network upload occurs.</p></div>
+      <form id="portal-form">
+        <label class="field-label" for="portal-name">Applicant name</label><input id="portal-name" type="text" value="Alex Sample" maxlength="100" required autocomplete="off">
+        <div class="portal-file-header"><label class="field-label" for="portal-file">Identity document</label><a class="portal-check-link" href="/" target="_blank" rel="noreferrer"><span data-icon="shield-check"></span>Open standalone check</a></div>
+        <p class="portal-file-requirements">PDF, PNG, or JPEG · Maximum 2 MB · Single page only.<br>Custom masking acceptance is not specified. Confirm with the recipient before sharing.</p>
+        <input type="file" id="portal-file" accept=".pdf,.png,.jpg,.jpeg" required data-privacygate="true" data-formats="pdf,png,jpeg" data-max-bytes="2097152" data-required-fields="">
+        <div class="portal-file-status" id="portal-file-status" role="status">Inspect a file using PrivacyGate, then manually choose your downloaded protected copy here.</div>
+        <label class="portal-consent"><input type="checkbox" id="portal-consent" required><span>I reviewed this document and approve this simulated submission.</span></label>
+        <button class="button button-primary full-width" id="submit-portal" type="submit"><span data-icon="check-circle"></span>Simulate submission</button>
+      </form>
+      <div class="portal-success" id="portal-success" hidden role="status"><span data-icon="check-circle"></span><h2>Demo submission complete</h2><p>Your selected file stayed in this browser. No actual application was submitted.</p><button class="button button-white" id="restart-portal">Try again</button></div>
+    </section>
+    <div class="portal-demo-tip"><span data-icon="info"></span><p><strong>Extension workflow:</strong> load the built Chrome extension to see “Check with PrivacyGate” above the upload field. That button opens a separate side panel and file picker; it never populates this site’s input.</p></div>
+    <section class="fixture-downloads"><h2>Synthetic demo documents</h2><p>Fictional fixtures only. No valid identity documents.</p><a href="/fixtures/aadhaar-scan.png" download>Scanned Aadhaar-like PNG</a><a href="/fixtures/aadhaar-text.pdf" download>Text Aadhaar-like PDF</a><a href="/fixtures/pan-scan.png" download>PAN-like PNG</a><a href="/fixtures/signature-indicator.pdf" download>Signature-indicator PDF</a><a href="/fixtures/qr-sample.png" download>QR warning sample</a><a href="/fixtures/oversized.png" download>Oversized PNG (over 2 MB)</a></section>
+    <footer class="page-footer"><span><span data-icon="lock"></span>Synthetic data. Local processing. Your decision.</span><span>Theme 2 · Beyond the Browser</span></footer>
+  </main>
+</body>
+</html>

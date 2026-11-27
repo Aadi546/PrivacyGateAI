@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#6b4ce6">
+  <meta name="description" content="Try PrivacyGate's guided document-sharing review with fictional samples and clearly simulated results.">
+  <title>PrivacyGate AI — Interactive demo</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='12' fill='%236b4ce6'/%3E%3Cpath d='m20 7 11 4v8c0 7-5 11-11 14-6-3-11-7-11-14v-8z' fill='none' stroke='white' stroke-width='2'/%3E%3Cpath d='m14 20 4 4 8-9' fill='none' stroke='white' stroke-width='2'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="./styles.css">
+  <script type="module" src="./app.mjs"></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="./" aria-label="PrivacyGate home"><span class="brand-mark" data-icon="shield"></span><span>PrivacyGate<span class="brand-ai">AI</span></span></a>
+    <nav aria-label="Demo navigation"><span class="nav-current">Interactive demo</span><button class="text-button" data-action="explain">How it works <span data-icon="arrow-up-right"></span></button><button class="text-button reset-nav" data-action="reset"><span data-icon="refresh"></span> Reset demo</button></nav>
+    <span class="sample-only"><i></i> Synthetic samples only</span>
+  </header>
+  <main>
+    <section class="intro">
+      <p class="eyebrow">A LITTLE VISIBILITY. A BETTER DECISION.</p>
+      <h1>Know what you’re <span>sharing.</span></h1>
+      <p>Try a document upload with PrivacyGate by your side.<br class="desktop-break"> See what the file reveals, where it’s going, and what you can choose to protect.</p>
+      <button class="button primary intro-start" data-action="start">Start the walkthrough <span data-icon="arrow-right"></span></button>
+    </section>
+    <div class="demo-notice"><span data-icon="info"></span><span><strong>Interactive concept demo.</strong> Sample findings and verification are simulated. No real files are scanned or uploaded.</span></div>
+    <section class="scenario-bar" aria-labelledby="scenario-title"><div><span id="scenario-title" class="small-label">CHOOSE A SCENARIO</span><p>A different document. A different decision.</p></div><div class="scenario-buttons" role="group" aria-label="Sample scenarios"><button data-scenario="identity" aria-pressed="true"><span data-icon="file"></span>Identity + hidden data</button><button data-scenario="clean" aria-pressed="false"><span data-icon="check"></span>Clean document</button><button data-scenario="signed" aria-pressed="false"><span data-icon="signature"></span>Signed document</button></div></section>
+    <ol class="stepper" id="stepper" aria-label="Your progress"></ol>
+    <div id="demo-status" class="sr-only" role="status" aria-live="polite"></div>
+    <div id="workspace" class="workspace"></div>
+    <section class="learn-strip"><div class="learn-icon" data-icon="sparkle"></div><div><h2>It’s your document. It should be your decision.</h2><p>PrivacyGate connects information inside a file with evidence about its upload destination.</p></div><button class="text-button" data-action="explain">See the architecture <span data-icon="arrow-right"></span></button></section>
+    <footer><span><span data-icon="lock"></span> Proposed product: local inspection, explicit approval.</span><span>Track 2 · Beyond the Browser</span></footer>
+  </main>
+  <dialog id="explanation" aria-labelledby="dialog-title"><div class="dialog-top"><span class="eyebrow">BEHIND THE REVIEW</span><button class="icon-button" data-action="close-explain" aria-label="Close explanation">✕</button></div><h2 id="dialog-title">Two agents. One informed decision.</h2><p class="dialog-intro">This is the proposed product architecture. The walkthrough demonstrates its behaviour with sample data; it doesn’t run AI agents or inspect real files.</p><div class="architecture"><article><span class="agent-number">01</span><div><h3>Browser Workflow Agent</h3><p>Understands the upload purpose and examines declared destinations and available request metadata.</p></div></article><div class="arch-connector">Upload purpose + requirements <span data-icon="arrow-down"></span></div><article><span class="agent-number">02</span><div><h3>Document Privacy Agent</h3><p>Selects local extraction, OCR and inspection tools to find supported PII, hidden data and authentication indicators.</p></div></article><div class="arch-connector">Both agents supply structured findings <span data-icon="arrow-down"></span></div><article class="engine"><span data-icon="layers"></span><div><h3>Disclosure Correlation Engine</h3><p>Deterministic code joins findings for the same upload session. It is not a third AI agent.</p></div></article><div class="arch-connector">Combined evidence <span data-icon="arrow-down"></span></div><article class="report-arch"><span data-icon="shield"></span><div><h3>Your Upload Disclosure Report</h3><p>You review the evidence, choose supported changes, inspect the verified copy, and separately approve submission.</p></div></article></div><div class="dialog-facts"><p><strong>Existing foundation</strong> The local Aadhaar-masking prototype is already built. This guided demo is a separate concept walkthrough.</p><p><strong>Privacy boundary</strong> The proposed product inspects files locally. Only an approved submission shares the file with a recipient.</p><p><strong>Important distinction</strong> Declared destinations can be inspected before upload. Actual request destinations are observed during supported upload workflows. Cross-origin does not mean malicious.</p></div><button class="button primary" data-action="close-explain">Back to the demo <span data-icon="arrow-right"></span></button></dialog>
+</body>
+</html>

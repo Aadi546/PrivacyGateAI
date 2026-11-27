@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Review a document, protect selected details and approve a local test upload.">
+  <title>PrivacyGate AI · Document review</title>
+  <link rel="icon" href="/static/favicon.svg">
+  <link rel="stylesheet" href="/static/practical/practical.css">
+  <script type="module" src="/static/practical/app.mjs"></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/practical"><span class="brand-mark" data-icon="shield-check"></span><span>PrivacyGate <b>AI</b></span></a>
+    <span id="connection" class="connection">Connect to begin</span>
+    <button class="text-button" id="reset" type="button">Start again</button>
+  </header>
+  <main>
+    <div class="intro"><p class="eyebrow">BEFORE YOU SHARE</p><p>Local prototype · full Chrome integration planned</p></div>
+    <details class="pairing" id="pairing" open>
+      <summary id="pair-summary">Connect to your local backend</summary>
+      <form id="pair-form">
+        <label for="pair-token">Pairing token from the backend terminal</label>
+        <div class="token-row"><input id="pair-token" type="password" autocomplete="off" required placeholder="Paste the local session token"><button class="button primary" id="connect" type="submit">Connect</button></div>
+        <p class="small">Kept in this page’s memory only.</p>
+      </form>
+    </details>
+    <ol class="progress" id="progress" aria-label="Document sharing steps"></ol>
+    <div id="message" role="status" aria-live="polite" aria-atomic="true"></div>
+    <div id="workspace"></div>
+    <footer>Document checks run on this computer. Test uploads go to a local receiver.</footer>
+  </main>
+</body>
+</html>

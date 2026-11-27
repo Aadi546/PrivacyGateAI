@@ -1,0 +1,68 @@
+{
+  "recorded_at_utc": "2026-11-24T13:28:47.388326+00:00",
+  "platform": "Windows-11-10.0.26300-SP0",
+  "python": "3.13.4",
+  "scope": "Synthetic local API analysis, metadata inspection, protection, verification and download. No browser rendering, user decision or network upload time. No LLM calls.",
+  "runs": [
+    {
+      "sample": "identity",
+      "run": 1,
+      "analysis_ms": 82,
+      "protection_verification_ms": 86,
+      "api_pipeline_ms": 180,
+      "metadata_removed": true,
+      "status": "passed_supported_checks",
+      "output_bytes": 2294
+    },
+    {
+      "sample": "identity",
+      "run": 2,
+      "analysis_ms": 48,
+      "protection_verification_ms": 86,
+      "api_pipeline_ms": 141,
+      "metadata_removed": true,
+      "status": "passed_supported_checks",
+      "output_bytes": 2294
+    },
+    {
+      "sample": "identity",
+      "run": 3,
+      "analysis_ms": 48,
+      "protection_verification_ms": 92,
+      "api_pipeline_ms": 147,
+      "metadata_removed": true,
+      "status": "passed_supported_checks",
+      "output_bytes": 2294
+    },
+    {
+      "sample": "scan",
+      "run": 1,
+      "analysis_ms": 720,
+      "protection_verification_ms": 489,
+      "api_pipeline_ms": 1234,
+      "metadata_removed": true,
+      "status": "passed_supported_checks",
+      "output_bytes": 87959
+    },
+    {
+      "sample": "scan",
+      "run": 2,
+      "analysis_ms": 683,
+      "protection_verification_ms": 447,
+      "api_pipeline_ms": 1144,
+      "metadata_removed": true,
+      "status": "passed_supported_checks",
+      "output_bytes": 87959
+    },
+    {
+      "sample": "scan",
+      "run": 3,
+      "analysis_ms": 684,
+      "protection_verification_ms": 496,
+      "api_pipeline_ms": 1203,
+      "metadata_removed": true,
+      "status": "passed_supported_checks",
+      "output_bytes": 87959
+    }
+  ]
+}

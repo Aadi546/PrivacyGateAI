@@ -1,0 +1,38 @@
+[
+  {
+    "filename": "aadhaar-text.pdf",
+    "description": "Text PDF with a Verhoeff-valid illustrative identifier",
+    "bytes": 3774,
+    "synthetic": true
+  },
+  {
+    "filename": "aadhaar-scan.png",
+    "description": "Scanned Aadhaar-like image; main demo",
+    "bytes": 100318,
+    "synthetic": true
+  },
+  {
+    "filename": "pan-scan.png",
+    "description": "Scanned PAN-like image",
+    "bytes": 95666,
+    "synthetic": true
+  },
+  {
+    "filename": "signature-indicator.pdf",
+    "description": "Unsigned test signature field; must block modification",
+    "bytes": 47768,
+    "synthetic": true
+  },
+  {
+    "filename": "qr-sample.png",
+    "description": "Synthetic image with a detectable QR code",
+    "bytes": 101083,
+    "synthetic": true
+  },
+  {
+    "filename": "oversized.png",
+    "description": "Readable synthetic card plus deterministic noise; exceeds 2 MB",
+    "bytes": 3171709,
+    "synthetic": true
+  }
+]

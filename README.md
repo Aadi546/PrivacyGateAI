@@ -1,272 +1,248 @@
 # PrivacyGate AI
 
-**Know what you’re sharing. Know where it’s going.**
+**Review what you disclose before sharing a document.**
 
-**Track 2 — Beyond the Browser: Reimagine How We Use the Web · wHACKiest 2026**
+**wHACKiest 2026 · Track 2 — Beyond the Browser**
 
-PrivacyGate AI is a local-first document privacy assistant designed to help people understand and control what they disclose during online uploads. It combines visible personal-information findings, supported hidden file details and upload-recipient information in one user-controlled review.
+PrivacyGate AI is a local document-privacy prototype. It helps users inspect supported personal identifiers and metadata, compare two address-proof options, choose a document, approve changes, verify a separate protected copy and separately approve a controlled test upload.
 
-The intended product is a **Chrome extension backed by a local Python service**. The repository currently contains a basic masking extension and a separate, expanded local web workspace demonstrating metadata inspection, verified protection and actual approved uploads to local test recipients. Integrating that expanded workflow into Chrome is a planned next step.
+The current working demo is a **local website backed by Python**. This repository also includes a **basic Chrome extension prototype**. The latest comparison, metadata and receiver-receipt workflow is implemented in the website; integrating all of it into the extension remains planned.
 
-## Problem and intended users
+## The problem
 
-People share identity proofs, résumés, certificates and other personal documents through online services. A file can reveal more than its preview makes apparent:
+A document can reveal more than its intended purpose requires. For example, both a bank statement and an electricity bill might satisfy an address-proof requirement, while the bank statement also exposes balances and transaction history. A PDF can also carry author or creator metadata that is absent from its page preview.
 
-- **Visible personal information:** full identifiers, phone numbers or email addresses that may exceed a task’s stated requirements.
-- **Hidden file details:** properties such as a PDF’s author, creator or title that do not appear on its rendered page.
-- **Recipient information:** the upload endpoint can differ from the website being viewed.
+Less disclosure is useful only when the chosen document and its remaining information meet the recipient's requirements. A company may need the complete document, including details beyond the main ID number. **Information not mentioned on an upload page is not automatically unnecessary.**
 
-A PDF certificate can contain an author’s name in metadata even when that name is absent from the page. An identity document may expose contact details alongside the identifier needed for a task.
+PrivacyGate supports review and informed choices. It does not certify authenticity, complete privacy or acceptance by a recipient.
 
-These disclosures are not automatically inappropriate. Recipients may require original documents, metadata is not inherently harmful, and a separate storage service can be legitimate. Users need evidence and understandable choices rather than an automatic safety verdict.
+## What is implemented
 
-PrivacyGate targets individuals sharing personal files and organisations seeking clearer document-submission workflows. Its scope is not restricted to students or one application type.
-
-## Solution and workflow
-
-PrivacyGate asks: **What does this file reveal, where is it intended to go, and which actions does the user approve?**
-
-1. **Select a supported document.** Extract native PDF text or use local OCR for scanned/image-based content.
-2. **Review findings.** Inspect supported identifiers, hidden metadata, technical compatibility and authentication indicators.
-3. **Review the intended recipient.** The controlled workspace shows the configured destination before submission.
-4. **Approve protection.** Select findings to mask and explicitly approve the transformation. The practical protection operation includes supported metadata cleanup; metadata-only cleanup is available when applicable.
-5. **Verify a separate copy.** Reopen the output and check approved changes, supported metadata removal, technical compatibility and original integrity. Required checks gate protected-file download and submission.
-6. **Approve sending separately.** Choose the original or a verified protected copy and explicitly approve its upload to a local test recipient.
-7. **Review the receipt.** The report adds the observed destination and evidence that received bytes match the approved file.
-
-### Example: an identity PDF
-
-The built-in synthetic identity PDF contains an Aadhaar-like identifier, contact information and planted author/creator/title properties. PrivacyGate reports supported findings and the configured recipient. The user approves selected masking and metadata removal, reviews the protected copy and verification result, and separately approves a test upload.
-
-For the synthetic Aadhaar-like sample, `xxxx xxxx 0124` retains the final four digits. The sample is fictional. A custom-protected copy is **not an officially issued Masked Aadhaar**, and acceptance by a recipient is not guaranteed.
-
-## Implementation status
-
-| Capability | Status |
+| Capability | Current status |
 |---|---|
-| Local single-page PDF/PNG/JPEG inspection | Implemented |
-| Aadhaar-like, PAN-like, phone and email pattern detection | Implemented, with OCR/layout limitations |
-| Approved masking and separate protected copies | Implemented for supported layouts |
-| Output reopening, removal/rendering checks and download gates | Implemented |
-| PDF properties/XMP-presence and readable image metadata inspection | Implemented in the expanded local workspace |
-| Supported metadata cleanup and original-integrity checks | Implemented in the expanded local workspace |
-| Same-origin and different-origin local uploads with receipts | Implemented in the expanded local workspace |
-| Basic Chrome side panel, portal button and backend messaging | Implemented in the existing extension |
-| Expanded metadata/recipient workflow inside Chrome | Planned integration |
-| Request observation on additional supported websites | Planned; no general-site monitoring claim |
-| Browser Workflow Agent and Document Privacy Agent using LLM reasoning | Planned; no current LLM inference |
-| Reusable Web SDK and institutional integrations | Proposed |
-| AWS hosting and ElevenLabs voice guidance | Optional proposals; not integrated |
-| Pro subscriptions, SDK licensing and partnerships | Business hypotheses; not validated |
+| Single-page PDF, PNG and JPEG inspection | Implemented locally |
+| Native PDF text extraction and English OCR for scans/images | Implemented |
+| Aadhaar-like, PAN-like, phone and email pattern findings | Implemented with coverage limitations |
+| PDF properties/XMP presence and supported image metadata checks | Implemented in the guided website |
+| Two-document address-proof disclosure comparison | Implemented in the guided website using deterministic rules |
+| Recipient acceptance and required name/address declarations | Explicitly confirmed by the user |
+| Selected masking, supported metadata cleanup and separate output | Implemented for supported layouts |
+| Output reopening, target/replacement checks and original integrity | Required for protected output |
+| Original/protected previews and protected-copy download | Implemented |
+| Separately approved local upload with a matching receiver receipt | Implemented |
+| Basic Chrome side panel and local mock-portal integration | Implemented separately |
+| General company-site integration and request observation | Planned; no arbitrary-site monitoring claim |
+| Document-based form autofill | Planned |
+| Two reasoning agents using an LLM | Planned; no current LLM inference |
+| Organisational policy SDK, AWS and ElevenLabs | Proposed; not integrated |
 
-The implemented LangGraph components are deterministic document-processing and decision subgraphs, distinct from the proposed reasoning agents.
+LangGraph currently coordinates ordinary deterministic functions. The comparison itself is plain Python; no AI agent chooses the winning document.
+
+## Guided prototype
+
+The website has four stages:
+
+1. **Choose a document or two address-proof candidates.** Use local files or built-in fictional samples.
+2. **Review or compare findings.** Inspect previews, identifiers, metadata, extraction limitations and configured recipient information.
+3. **Approve protection and verify.** Select supported identifiers, read the recipient-requirements notice, approve changes and inspect a separate verified copy.
+4. **Approve the local test upload.** Review the exact variant and destination, approve sending separately and inspect the receipt.
+
+All finding selections and approvals start unchecked. The unchanged original is an explicit alternative and is never labelled a verified protected copy.
+
+### Example A: synthetic identity PDF
+
+The sample contains an Aadhaar-like number, email, phone and planted PDF properties. The supported readable Aadhaar mask retains the final four digits, for example `xxxx xxxx 0124`.
+
+The document is fictional. A custom-protected copy is **not UIDAI-issued Masked Aadhaar**. Modification is blocked when a signature indicator is detected; actual signature validity is not verified.
+
+### Example B: bank statement versus electricity bill
+
+Choose **Compare two address proofs**, then **Inspect bank statement + electricity bill**. Both fictional samples contain the same name and address.
+
+The bank sample includes readable account information, balances and transaction rows. The utility sample includes consumer, usage and billing details. Users must declare recipient acceptance and confirm the required name/current address themselves before a suitable option can be recommended.
+
+The address-proof policy compares **distinct detected category counts**, in order:
+
+1. Government identifiers and financial activity/balances.
+2. Account identifiers.
+3. Contact and billing details.
+4. Supported metadata fields.
+
+The first differing tier determines the suggestion. Required name/address are excluded. Filenames and document-type labels do not determine the winner. Blank headings and explicitly masked financial values do not count as readable disclosure evidence.
+
+Possible results include a conditional recommendation, an equal-policy-count tie, an inconclusive comparison, no confirmed option, or an only-confirmed-option result. The latter is not a privacy victory over an unconfirmed document. Uncertain extraction and uninspected possible QR contents prevent a reliable privacy ranking.
+
+This is a **bounded heuristic policy**, not a universal privacy score. It has not been validated for arbitrary real-world layouts. Some comparison findings, such as transaction history, do not yet support automatic masking.
+
+After choosing a candidate, the existing protection/upload flow uses that document. Changing a file or suitability declarations invalidates the comparison and downstream state. Switching documents clears protected-copy state, approvals and receipts.
 
 ## Architecture
 
-The expanded browser workspace communicates with an authenticated, loopback-only FastAPI service. Document tools run on the same computer. A configured local recipient receives an explicitly approved file and produces receipt evidence.
-
 ```mermaid
-flowchart LR
-    U["Expanded local browser workspace"]
-    A["Local FastAPI API<br/>Authentication and in-memory sessions"]
-    T["Local document tools<br/>PDF, OCR, metadata, masking and verification"]
-    R["Unified disclosure report<br/>Deterministic correlation"]
-    X["Controlled local recipient<br/>Validate approved bytes; discard body"]
-    B["Planned Browser Workflow Agent<br/>Page and recipient reasoning"]
-    D["Planned Document Privacy Agent<br/>Tool selection and explanation"]
-    C["Planned full Chrome integration"]
-    U <-->|"File, context, approvals and results"| A
-    A <-->|"Tool requests and findings"| T
-    A --> R
-    R -->|"Findings and receipt evidence"| U
-    U -->|"Separately approved file"| X
-    X -->|"Matched-file receipt"| R
-    B -.->|"Proposed reasoning outputs"| A
-    D -.->|"Proposed local tool orchestration"| T
-    C -.->|"Expanded workflow integration"| A
+flowchart TD
+    UI["Guided local website"]
+    API["Authenticated FastAPI service · port 8765"]
+    TOOLS["PDF / OCR / image / metadata tools"]
+    COMP["Address-proof comparison rules"]
+    REVIEW["User reviews findings and approves changes"]
+    VERIFY["Create separate copy and verify supported checks"]
+    SEND["Separate user approval for the exact file"]
+    RECEIVER["Local test receiver · port 8766"]
+    RECEIPT["Matching-file receipt · received body discarded"]
+
+    UI -->|"One file or two candidates"| API
+    API --> TOOLS
+    TOOLS --> COMP
+    TOOLS --> REVIEW
+    COMP -->|"Evidence, limitations and conditional suggestion"| REVIEW
+    REVIEW --> VERIFY
+    VERIFY -->|"Passing checks unlock protected output"| SEND
+    SEND --> RECEIVER
+    RECEIVER --> RECEIPT
+    RECEIPT --> UI
 ```
 
-Solid connections represent the implemented local workflow; dashed connections represent planned additions. The earlier basic extension exists separately. The planned Chrome node refers to integrating the expanded workflow.
+Both HTTP services run on the same computer. The application uses in-memory sessions rather than a document database.
 
-### Document processing
+A separate WXT/React side-panel prototype talks to the same local engine for the earlier masking workflow. Its content script is restricted to the local mock portal.
 
-- **Extraction:** native PDF text on supported paths; local Tesseract OCR for scanned/image-based content.
-- **Detection:** patterns and supporting checks identify candidate identifiers. Matches are findings for review, not identity verification or a complete sensitive-data inventory.
-- **Protection:** PDF redaction removes supported source content before inserting readable masks; image processing changes actual pixels. Uncertain boundaries or backgrounds block protected output.
-- **Metadata:** inspect standard PDF properties and XMP presence, readable EXIF tags and selected ancillary image fields. Inspection is not exhaustive.
-- **Verification:** reopen the output, check selected target removal and replacement rendering, confirm retained Aadhaar digits, reinspect supported metadata, and check output format/size and original integrity.
+### Processing and verification
 
-Scanned/image-bearing PDFs are reconstructed without their original searchable text layer. Images are exported as fresh PNGs. Partial masks deliberately retain some information, which remains visible for the user to review.
+- **PDFs:** extract native text and positions on supported paths; render scanned/image-bearing PDFs for OCR.
+- **Images:** correct EXIF orientation and prepare pixels with Pillow; Tesseract returns text and character positions.
+- **Detection:** patterns identify candidate identifiers and context-based comparison disclosures. Detection is not identity verification.
+- **Masking:** permanently remove supported original content before inserting readable replacements. Uncertain character boundaries or backgrounds block output.
+- **Metadata:** inspect standard PDF properties/XMP presence, readable EXIF and selected ancillary fields. These checks are not exhaustive.
+- **Verification:** reopen output, check approved target removal and replacement rendering, supported last-four preservation, metadata removal, original integrity and output size/format compatibility.
 
-### Recipient evidence and approval
+Image outputs are fresh PNGs. Protected scanned PDFs are reconstructed without the original searchable text layer. Partial masks deliberately retain some information.
 
-The practical workspace uses a page/API on port `8765` and an optional separate local recipient on port `8766`. Same-origin and different-origin modes compare scheme, host and port.
+### What the receiver proves
 
-The configured destination is shown before upload. Separate approval creates a **90-second, single-use grant** bound to the session, exact file SHA-256 digest, byte count, destination and page origin. The browser sends the selected file directly to that recipient. The receiver validates the grant and bytes, updates receipt evidence and discards the streamed body after hashing/counting it.
+The default receiving endpoint is `http://127.0.0.1:8766/mock-upload`; a same-origin test mode is also available.
 
-Observed destination evidence becomes available during the approved upload. It comes from the controlled portal and receiver, not arbitrary-site Chrome monitoring. A matching receipt does not establish an external recipient’s trustworthiness, future handling or deletion of a document.
+Upload approval creates a 90-second, single-use grant tied to the session, file hash, byte count, destination and page origin. The browser sends the approved bytes directly to the selected local receiver. The receiver validates them, returns a receipt and discards the received body.
+
+**The destination is configured for this demo.** It is not discovered through DevTools or `webRequest`. A receipt proves the controlled transfer matched the approved file; it does not prove recipient trust, external-company acceptance, subsequent deletion or later forwarding.
 
 ## Technology stack
 
-| Layer | Technology | Role and rationale |
-|---|---|---|
-| Extension interface | React, TypeScript | Findings, previews, user selections and typed messages |
-| Extension build/platform | WXT, Chrome Manifest V3 | Packaging, content script, side panel and background service worker |
-| Expanded local interface | HTML, JavaScript, CSS | Demonstrates the practical workflow before full extension integration |
-| Backend | Python, FastAPI, Uvicorn, Pydantic | Authenticated local requests, validated input and session coordination |
-| PDF engine | PyMuPDF | Extraction, properties, supported redaction, rendering and output reopening |
-| OCR | Tesseract through pytesseract | Local scanned-text recognition with bounded calls |
-| Images | Pillow, OpenCV, NumPy | Pixels, supported metadata, masking and QR indicators |
-| Workflow | LangGraph and Python rules | Deterministic document steps; ordinary Python correlates recipient evidence |
-| Storage | In-memory sessions | Temporary processing state without a document database |
-| Verification | pytest, Node test runner | Document/workflow regressions and extension-worker authorisation checks |
-
-The core runs on a CPU laptop with local dependencies; no GPU, paid inference API or LLM service is required. Tesseract uses OCR recognition models, while language-model reasoning is not implemented. Dependencies are listed in [requirements.txt](requirements.txt) and the [extension package](chrome-extension/package.json).
-
-## Differentiation
-
-PrivacyGate connects **document findings, recipient context, file-specific approval, verified protection and upload evidence** in one sharing workflow.
-
-| Existing approach | Established capability | PrivacyGate’s connected focus |
-|---|---|---|
-| PDF editors | Redaction and supported PDF sanitisation | Connect protection choices to the upload review |
-| Metadata inspectors | Find supported hidden file details | Combine findings with visible information and recipient context |
-| Browser/network tools | Observe supported requests and destinations | Associate recipient evidence with the reviewed file and approval |
-
-These categories overlap. PrivacyGate does not claim to invent OCR, redaction or metadata inspection, or to be the only product combining data and destination controls. Its proposed distinction needs evaluation through usability, accuracy and integration quality.
-
-## Privacy and security
-
-- Inspection, OCR, masking and verification run locally. The core does not send files or extracted text to cloud inference services.
-- Servers bind to `127.0.0.1`. API endpoints, including `/health`, require the pairing token printed in the terminal. Host/origin checks supplement authentication.
-- Extension permissions are restricted to the demo. The extension does not monitor unrelated browsing traffic, cookies or credentials.
-- Sessions hold original/output bytes in process memory, expire after 15 minutes of inactivity and can be explicitly cleared. The current backend allows four sessions and one document-processing operation at a time.
-- Parsing, multipart handling and OCR can use library-managed temporary files that their wrappers clean up. User-downloaded copies remain on the user’s device.
-- Application handling avoids logging sensitive document values; LangSmith tracing is disabled around document processing. Production use still requires a security review.
-- Originals remain unchanged. Protection and final submission need separate approval. Failed or incomplete required checks block protected output.
-- Signature indicators block modification; detection is not cryptographic validation. QR detection neither verifies identity nor removes QR payloads.
-
-## Verification and impact
-
-### Recorded evidence
-
-The [practical verification record](docs/practical-verification.md) reports **51 backend tests passed in 17.49 seconds** on Windows: nine practical-workflow tests and 42 existing regressions. This is recorded prototype evidence, not an accuracy score.
-
-Browser demonstrations used actual synthetic file bytes for masking, metadata cleanup, original-integrity checks, scanned OCR and same-origin/different-origin receipts. Native file-picker automation stalled and is not marked browser-verified. Built-in samples exercise actual backend processing; a file saved by the browser’s download mechanism is not asserted by that record.
-
-The [practical benchmark data](docs/practical-benchmarks.json) records three runs per synthetic fixture:
-
-| Sample | Local API pipeline times |
+| Technology | Role |
 |---|---|
-| Text identity PDF | 180 ms, 141 ms, 147 ms |
-| Scanned identity image | 1,234 ms, 1,144 ms, 1,203 ms |
+| HTML, CSS and JavaScript | Current guided website |
+| WXT, React, TypeScript and Manifest V3 | Basic extension build, side panel, worker and content script |
+| Python, FastAPI, Uvicorn and Pydantic | Local server, authenticated API and request validation |
+| PyMuPDF | PDF extraction, previews, metadata, supported redaction and reopening |
+| Tesseract / pytesseract | Local OCR for scans and images |
+| Pillow / NumPy | Image preparation, readable masks and pixel checks |
+| OpenCV | Possible QR detection and synthetic test-fixture generation |
+| LangGraph / Python rules | Deterministic processing coordination and comparisons |
+| SHA-256 and single-use grants | Correlation of the approved and received file |
+| Python unittest/pytest and Node test runner | Backend, approval-state and extension-worker tests |
 
-The pipeline covers analysis, metadata inspection, protection, verification and download processing. It excludes browser rendering, user decisions and upload time. These samples do not establish production throughput, P95 latency, accuracy or a performance guarantee.
+OpenCV currently does not perform OCR enhancement. Tesseract includes recognition models, but no LLM or reasoning agent is called. There is no required paid inference API or GPU.
 
-### Planned evaluation
+The core currently requires a local Python/OCR installation. A streamlined companion installer or browser-only engine has not been built; installed development dependencies are not a final installer-size measurement.
 
-| Outcome | Measurement |
-|---|---|
-| Find relevant information | Per-category precision/recall on labelled, representative documents |
-| Protect approved details | Target-removal rate plus independent extraction/visual review |
-| Preserve usefulness | Required-field retention and acceptance in supported recipient workflows |
-| Improve sharing decisions | Correct interpretation of findings/recipient evidence, completion and review time against a baseline |
-| Maintain responsiveness | Latency percentiles, memory use and failures by document type, size and device |
+## Privacy, safeguards and limits
 
-Pilot benefits, customer demand and large-scale performance remain unvalidated.
+- Local inspection, OCR, masking and verification do not send document data to cloud inference services.
+- Servers bind to loopback. API calls, including health checks, require the random token printed at startup. Host and origin checks supplement authentication.
+- The token changes on backend restart. The website keeps it only in page memory; the extension uses trusted session storage. Tokens are not committed to this repository.
+- Sessions expire after 15 minutes of inactivity and can be cleared. The current service allows four sessions and serialises document processing.
+- Documents are held in process memory; libraries may use temporary files cleaned by their wrappers. Downloaded copies remain on the user's device. This is not a forensic-erasure guarantee.
+- Protected output requires explicit change approval and passing checks. Sending requires separate approval. A receiver receipt does not replace document verification.
+- Signature indicators block modification. Possible QR contents remain unchanged and can contain additional information.
+- The guided page accepts **one-page PDF/PNG/JPEG files up to 2 MB**. The engine also enforces a 10 MB processing ceiling and a 20-million-pixel image limit.
+- Detection and ranking are limited to supported patterns and extraction coverage. Missing findings do not prove absence of sensitive information.
+- Users must check recipient requirements before removing information. The notice is displayed immediately before protection consent.
+- The interface includes labelled controls, visible keyboard focus, textual findings, responsive layouts and reduced-motion support. Full assistive-technology and WCAG validation are outstanding.
+- Production use still needs parser hardening, security review, supported-site compatibility testing, secure updates and installation packaging.
 
-## Feasibility, scalability and risks
+The extension identity file contains a **public** manifest key and extension ID used to keep the local origin allowlist stable. It is not a private signing key or service credential.
 
-Established PDF/OCR/image tools and the existing masking engine support phased implementation. Native extraction avoids OCR where supported, while per-device processing reduces central compute and document-storage requirements. File-size, page-count, pixel-count, OCR-time and session limits bound the current workload.
+## Run locally
 
-Throughput remains limited by each device’s CPU and memory. The current service is stateful and serialises document processing; it is not a horizontally scaled multi-tenant backend. Multi-page support, bounded queues, secure updates and supported-site deployment need further engineering.
+Requirements: Python 3.11+, Node.js 22.12+ with npm, and Tesseract with English language data. Desktop Chrome is needed for the extension. Setup downloads dependencies; installed document processing runs locally.
 
-| Risk / boundary | Response or development requirement |
-|---|---|
-| Single-page PDF/PNG/JPEG scope | Reject unsupported input; add formats/pages after tests |
-| OCR errors and missed patterns | Report coverage and uncertainty; a missing finding does not prove safety |
-| Complex or unsupported PDF structures | Block unsupported protection rather than claim complete sanitisation |
-| Uncertain masking boundaries/backgrounds | Block protected output when a reliable transformation cannot be established |
-| Signature and QR mechanisms | Preserve originals, block modification on signature indicators and explain unchanged QR payloads |
-| Recipient rejects a modified document | Check technical compatibility; validate actual acceptance with supported recipients |
-| Immediate uploads, redirects and changing websites | Explicit controlled preflight now; future adapters need permission/compatibility testing |
-| Malformed or hostile files | Existing type/resource limits are preliminary; production needs parser hardening and security testing |
-
-The practical page sets a **2 MB portal limit**. The engine has a **10 MB maximum**, **one-page scope** and **20-million-pixel limit**; backend limits do not override portal requirements. An ordinary extension cannot guarantee universal interception or blocking of every upload.
-
-The earlier `/portal` submission is simulated; `/practical` performs actual approved transfers to local recipients. [Known limitations](docs/known-limitations.md) covers processing and the earlier extension. [Practical verification](docs/practical-verification.md) describes the expanded workflow’s evidence and boundaries.
-
-## Business model and roadmap
-
-### Proposed business model
-
-- **Individual users:** a freemium extension for essential protection, with possible Pro subscriptions for advanced features.
-- **Organisations:** potential annual SDK licensing, usage-based plans, deployment support and custom integrations for recruitment platforms, universities, document-intake portals and software providers.
-- **First users:** volunteer uploaders, including students and job seekers, and consenting portal teams. Pilots would assess usability, privacy-related outcomes and willingness to pay.
-- **Costs:** development, document-tool maintenance, browser/site compatibility, security testing, distribution and support. Optional cloud/voice services add operating costs; local processing is not cost-free deployment.
-- **Growth:** individual adoption, institutional pilots and tested platform partnerships. Pricing, serviceable market, revenue, customers and signed partnerships have not been validated.
-
-### Planned development
-
-1. Integrate the expanded metadata, protection and recipient report into the existing Chrome extension.
-2. Add tested adapters for selected real upload workflows and improve permitted request/session correlation.
-3. Expand document layouts, formats and page support with correctness and performance evaluation.
-4. Add exactly two bounded reasoning agents: **Browser Workflow Agent** for page/recipient interpretation and **Document Privacy Agent** for local tool selection and explanations. Deterministic correlation remains ordinary code, not a third reasoning agent.
-5. Develop a reusable **Web SDK** for consenting platforms to embed preflight review, approvals and supported output checks.
-6. Add organisational policies, appropriate audit records, secure deployment/updates and support after pilot evidence.
-
-### Optional AWS and ElevenLabs integration
-
-AWS could host non-sensitive public demo assets and setup guidance. A future API Gateway/Lambda endpoint could deliver predefined voice instructions with the ElevenLabs credential stored server-side in Secrets Manager. ElevenLabs could generate opt-in generic guidance or pre-generated prompts.
-
-Only fixed guidance identifiers or predefined non-sensitive text would enter that voice path; documents, filenames, extracted identifiers and detailed findings would remain outside it. AWS would not replace local document processing under this design. Neither integration is implemented.
-
-## Quick start
-
-Install Python 3.11+, Node.js 22.12+ with npm, and Tesseract with English data. Desktop Chrome is needed for the extension. Setup downloads dependencies; installed processing runs locally. Recorded verification is from Windows; macOS scripts are provided, with actual macOS runtime checks pending.
-
-### Windows
+### Windows PowerShell
 
 From the repository root:
 
 ```powershell
 winget install --id UB-Mannheim.TesseractOCR --exact
 powershell -ExecutionPolicy Bypass -File .\setup.ps1
-powershell -ExecutionPolicy Bypass -File .\start-practical.ps1
+.\.venv\Scripts\python.exe -u -m backend.practical_server
 ```
 
-### macOS — device verification pending
+### macOS
 
-With Python, Node.js and Homebrew installed, run from the repository root:
+With Homebrew, Python and Node.js installed:
 
 ```sh
 brew install tesseract
 sh setup.sh
-sh start-practical.sh
+.venv/bin/python -u -m backend.practical_server
 ```
 
-Open **http://127.0.0.1:8765/practical**, pair with the terminal token and try the synthetic identity PDF. Keep the terminal running; Ctrl+C stops both services. Detailed setup, extension loading, troubleshooting and test commands are in the [setup guide](docs/SETUP.md).
+Open **http://127.0.0.1:8765/practical** and enter the token from that terminal. Keep the terminal open. **Ctrl+C stops both services.** Run only one backend instance; an address-in-use error means a process already occupies the ports. A token printed by a failed second instance does not authenticate the running instance.
 
-## Repository and resources
+Windows runtime checks are recorded. Actual macOS runtime verification remains pending.
+
+For the existing extension, build it with the setup script, open `chrome://extensions`, enable Developer mode and load `chrome-extension/.output/chrome-mv3`. Open `http://127.0.0.1:8765/portal` for its controlled integration. This earlier portal simulates final submission; real local transfers belong to `/practical`.
+
+Detailed instructions and troubleshooting: [docs/SETUP.md](docs/SETUP.md).
+
+## Verification
+
+Run backend tests:
+
+```powershell
+.\.venv\Scripts\python.exe -m unittest discover -s tests -p "test_*.py" -v
+```
+
+On macOS, use `.venv/bin/python`.
+
+Build/type-check the extension before its worker harness:
+
+```sh
+cd chrome-extension
+npm run compile
+npm run build
+cd ..
+node --test tests/extension.test.mjs tests/practical-flow.test.mjs
+node --test sites/privacygate-demo/scenario.test.mjs
+```
+
+Verification on 27 November 2026 passed **64 backend tests and 23 JavaScript tests**: 14 guided-state checks, 3 extension-worker checks and 6 earlier simulation checks. Extension TypeScript compilation and the production Chrome build also passed. Tests cover content-based ranking, acceptance declarations, ties, inconclusive results, stale-state invalidation, chosen-file upload matching and existing masking regressions.
+
+Live browser checks exercised sample comparison, manually selected synthetic PDF files, replacement of an invalid candidate, conditional recommendations, selected-copy protection and matching local receipts. A narrow viewport was checked for reflow and horizontal overflow. These checks do not establish production accuracy or universal website compatibility.
+
+See [the practical verification record](docs/practical-verification.md) and [known limitations](docs/known-limitations.md). Earlier benchmark records use synthetic fixtures and different scopes; they are not production throughput or accuracy claims.
+
+## Product direction and business model
+
+The proposed product combines an individual extension with an organisational SDK. A platform-supplied policy could define accepted document types, required fields and explicitly permitted masking; an individual extension would need to distinguish explicit, inferred, unknown and conflicting public requirements.
+
+Potential revenue includes Pro features, SDK licensing, usage-based plans and integration support. Customer demand, pricing, acceptance benefits and commercial viability remain hypotheses requiring pilots. Measure detection precision/recall, missed disclosures, recommendation usefulness, review time and successful submissions before claiming impact.
+
+Planned work includes full guided-flow extension integration, tested real-site adapters and destination observation, structured extraction/autofill, two bounded reasoning agents, multi-page support and a policy SDK. AI assistance would not replace explicit user approval or deterministic output verification.
+
+Optional AWS hosting and ElevenLabs generic voice guidance are proposals only. They are not part of the current document-processing path.
+
+## Repository layout
 
 ```text
-backend/                Local API, document engine, OCR, masking and receipts
-chrome-extension/       WXT/React side panel, worker and portal content script
-prototype/practical/    Expanded local browser workspace
-prototype/portal.*      Earlier portal with simulated submission
-sample-documents/       Clearly labelled synthetic fixtures
-tests/                  Document, workflow and authorisation checks
-scripts/                Checkpoints, benchmarks and packaging
-docs/                   Setup, evidence, limitations and narration
-output/presentations/   PowerPoint decks
+backend/                       Local API, comparison, PDF/OCR engine and receiver
+prototype/practical/           Current four-step website
+chrome-extension/              Basic WXT/React extension source and lockfile
+sample-documents/              Whitelisted synthetic test fixtures
+tests/                         Backend, state and worker checks
+scripts/                       Benchmarks, checkpoints and source packaging
+docs/                          Setup, limitations and verification records
+sites/privacygate-demo/dist/   Earlier static scenario simulation, without real processing
 ```
 
-- [Setup and verification commands](docs/SETUP.md)
-- [Practical verification](docs/practical-verification.md)
-- [Benchmark data](docs/practical-benchmarks.json)
-- [Known limitations](docs/known-limitations.md)
-- [Platform checkpoints](docs/platform-checkpoints.md)
-- [Project presentation](output/presentations/PrivacyGate-AI-Track2-Pitch.pptx)
-- [Three-minute, three-presenter video script](docs/video-script-3min.md)
+Built-in address-proof PDFs are generated by the backend; choose the paired samples in the website. The older static simulation is explicitly labelled and separate from the working local engine.
 
-Recorded evidence demonstrates supported prototype behaviour. It does not certify complete anonymity, document authenticity, recipient trust or production readiness.
+Local environments, build output, private notes, generated presentations, uploaded documents, tokens, credentials and temporary artifacts are excluded from Git. Only known synthetic fixtures and public extension icons are intentionally included.

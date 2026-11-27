@@ -1,0 +1,100 @@
+import {SCENARIOS,initialState,transition,canProtect,canSubmit} from './model.mjs';
+
+const icons={shield:'<path d="m12 3 8 3v6c0 5-4 8-8 10-4-2-8-5-8-10V6Z"/><path d="m8 12 3 3 5-6"/>',file:'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8ZM14 2v6h6M8 13h8M8 17h5"/>',check:'<path d="m5 12 4 4L19 6"/>',signature:'<path d="m15 5 4-3 3 3-3 4-10 10-5 1 1-5ZM13 7l4 4M3 23h18"/>',info:'<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7h.01"/>',lock:'<rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v3"/>','arrow-right':'<path d="M4 12h16m-6-6 6 6-6 6"/>','arrow-up-right':'<path d="M6 18 18 6M6 6h12v12"/>','arrow-down':'<path d="M12 4v16m-6-6 6 6 6-6"/>',sparkle:'<path d="m12 3 2.5 6.5L21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5Z"/>',globe:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c5 5 5 13 0 18-5-5-5-13 0-18Z"/>',refresh:'<path d="M20 7v5h-5M4 17v-5h5"/><path d="M6 7a7 7 0 0 1 12-1l2 6M4 12l2 6a7 7 0 0 0 12-1"/>',eye:'<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/>',layers:'<path d="m12 2 10 5-10 5L2 7Zm-10 10 10 5 10-5M2 17l10 5 10-5"/>',location:'<path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="3"/>',clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',upload:'<path d="M12 16V3m-5 5 5-5 5 5M4 15v5h16v-5"/>',alert:'<path d="m12 3 10 18H2Z"/><path d="M12 9v5m0 3h.01"/>',qr:'<path d="M3 3h6v6H3ZM15 3h6v6h-6ZM3 15h6v6H3ZM15 15h3v3h3v3h-6ZM21 12h-6v3M12 3v3m0 4v3H9m3 3v6"/>'};
+const icon=(name,size=20)=>`<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${icons[name]||icons.file}</svg>`;
+const hydrate=root=>root.querySelectorAll('[data-icon]').forEach(el=>el.innerHTML=icon(el.dataset.icon));
+const esc=v=>String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let state=initialState();let generation=0;
+const workspace=document.getElementById('workspace');
+const pause=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+const phases=['choose','selected','inspecting','review','protecting','ready','submitted'];
+const hasReport=()=>phases.indexOf(state.phase)>=3;
+const done=()=>state.phase==='submitted';
+
+function documentPreview(){
+ const s=SCENARIOS[state.scenario];const protectedView=state.view==='protected'&&state.output==='protected';const masked=protectedView&&state.selected.includes('aadhaar');
+ return `<div class="document-preview ${s.signed?'signed-paper':''}"><div class="paper-top"><span class="paper-emblem">${icon(s.signed?'signature':'file',27)}</span><span>DEMO DOCUMENT<br><strong>FICTIONAL SAMPLE</strong></span><span class="paper-ref">PG / 2026 / 014</span></div><div class="paper-rule"></div><h3>${s.title}</h3><p class="paper-subtitle">${s.subtitle}</p><div class="person-row"><div class="avatar">AS</div><div><small>${state.scenario==='clean'?'STUDENT NAME':'NAME'}</small><strong>Alex Sample</strong><p>${state.scenario==='clean'?'Department of Computer Science':'Date of birth: 01 / 01 / 2000'}</p></div></div><div class="paper-lines"><span></span><span></span><span></span></div><div class="identity-number ${masked?'masked-number':''}"><small>${state.scenario==='identity'?'IDENTITY NUMBER':'REFERENCE NUMBER'}</small><strong>${masked?'XXXX XXXX 0124':s.number}</strong></div>${s.signed?`<div class="signature-row"><span>${icon('qr',38)}<small>Test QR indicator</small></span><span class="signature-script">Sample signature<small>Indicator only · not verified</small></span></div>`:''}<div class="paper-footer"><span>NOT VALID FOR IDENTIFICATION</span><span>Sample only</span></div></div>`;
+}
+function portal(){
+ const s=SCENARIOS[state.scenario];const selected=state.phase!=='choose';
+ return `<section class="portal-window" aria-label="Fictional scholarship portal"><div class="browser-bar"><span class="window-dots"><i></i><i></i><i></i></span><span class="address">${icon('lock',12)}scholarship.example/apply</span><span class="browser-more">···</span></div><div class="portal-content"><div class="portal-heading"><span class="scholarship-mark">B<span>F</span></span><div><p>BRIGHT FUTURES</p><span>Scholarship programme</span></div><span class="fictional-label">FICTIONAL PORTAL</span></div><div class="application-heading"><span class="small-label">YOUR APPLICATION</span><h2>A step toward your next chapter.</h2><p>Provide identity or enrolment proof to complete your sample application.</p></div><div class="field-heading"><span>Supporting document</span><span>PDF · up to 2 MB</span></div><div class="file-chip ${selected?'is-selected':''}"><span class="file-chip-icon">${icon('file',24)}</span><div><strong>${s.name}</strong><small>${s.size} · One page · Synthetic sample</small></div><span class="file-status">${selected?icon('check',18):'Preview'}</span></div><div class="preview-toolbar"><span>${icon('eye',15)}${selected?'Document preview':'Sample preview'}</span>${state.output==='protected'?`<div class="preview-tabs" role="group" aria-label="Document comparison"><button data-view="original" aria-pressed="${state.view==='original'}">Original</button><button data-view="protected" aria-pressed="${state.view==='protected'}">Protected</button></div>`:`<span class="sample-stamp">SYNTHETIC</span>`}</div><div class="paper-stage">${documentPreview()}</div>${state.view==='protected'?`<div class="copy-caption">${icon('check',16)} Showing a simulated protected copy. The original is unchanged.</div>`:''}<div class="portal-bottom">${state.phase==='choose'?`<button class="button primary" data-action="choose">Choose this sample ${icon('arrow-right',18)}</button><p>No file picker needed. Start with this fictional document.</p>`:done()?`<div class="portal-complete">${icon('check',20)} Simulated submission complete</div><p>No file was transmitted. This is a guided walkthrough.</p>`:`<div class="not-uploaded">${icon('lock',15)} Selected for review. Not uploaded.</div><p>Review the PrivacyGate panel before you continue.</p>`}</div></div></section>`;
+}
+function findingRows(){
+ const s=SCENARIOS[state.scenario];
+ if(!s.findings.length)return `<div class="clean-state">${icon('check',23)}<div><strong>No issues found in sample checks</strong><p>This sample has no supported identifier or metadata findings. That does not certify a document as safe.</p></div></div>`;
+ return s.findings.map(f=>`<article class="finding ${f.action?'':'indicator-finding'}"><div class="finding-top"><span class="finding-symbol ${f.id==='author'?'metadata-symbol':s.signed?'warning-symbol':''}">${icon(f.id==='author'?'layers':f.id==='signature'?'signature':f.id==='qr'?'qr':'file',18)}</span><div><span class="finding-kind">${f.kind}</span><h4>${f.label}</h4></div>${f.action?`<span class="review-tag">REVIEW</span>`:''}</div><p class="finding-value">${esc(f.value)}</p><details><summary>Why this matters ${icon('info',13)}</summary><p>${f.why}</p></details>${f.action?`<label class="action-check"><input type="checkbox" data-toggle="${f.id}" ${state.selected.includes(f.id)?'checked':''} ${state.phase!=='review'?'disabled':''}><span>${f.action}</span></label>`:''}</article>`).join('');
+}
+function destination(){
+ const s=SCENARIOS[state.scenario];
+ return `<section class="recipient-section"><div class="section-title"><span>${icon('globe',17)} Where it’s going</span><span class="mini-label">SAMPLE EVIDENCE</span></div><dl class="destination-list"><div><dt>Page origin</dt><dd>https://scholarship.example</dd></div><div><dt>Declared destination</dt><dd>${esc(s.destination)}</dd></div><div><dt>Observed destination</dt><dd class="${state.observed?'observed':'pending-destination'}">${state.observed?esc(state.observed):`${icon('clock',13)} Not observed yet`}</dd></div></dl><div class="origin-status ${s.crossOrigin?'different':'same'}">${icon(s.crossOrigin?'info':'check',15)} ${s.crossOrigin?'Different origin · relationship unverified':'Same origin as the sample portal'}</div><p class="destination-explainer">${state.observed?'This endpoint is a simulated observation after your submission approval. No network upload occurred.':'Declared means the page says it will use this endpoint. An observed destination comes from a request during upload.'} ${s.crossOrigin?'A different origin is not proof of maliciousness.':'A matching origin does not establish trustworthiness.'}</p></section>`;
+}
+function initialPanel(){
+ return `<div class="empty-panel"><div class="empty-orbit"><span>${icon('shield',43)}</span><i class="orbit-file">${icon('file',19)}</i><i class="orbit-globe">${icon('globe',18)}</i></div><h3>See the whole picture.</h3><p>What’s in the file? Where is it going?<br>Let’s review both before you share.</p><div class="empty-features"><span>${icon('file',15)} Document information</span><span>${icon('globe',15)} Upload destination</span></div><button class="button primary full" data-action="inspect" ${state.phase==='choose'?'disabled':''}>${icon('sparkle',18)} Inspect sample</button><small>${state.phase==='choose'?'Choose the sample on the portal to begin.':'Ready when you are. This inspection is simulated.'}</small></div><div class="panel-footnote">${icon('lock',14)} Real product design: inspection stays on your device.</div>`;
+}
+function processingPanel(){
+ const protecting=state.phase==='protecting';
+ const steps=protecting?['Apply selected changes to a separate copy','Check the supported changes','Prepare a comparison preview']:['Browser Workflow Agent: inspect context','Document Privacy Agent: inspect sample','Correlation engine: combine findings'];
+ return `<div class="processing-panel" role="status"><span class="processing-spinner"></span><span class="eyebrow">SIMULATED WALKTHROUGH</span><h3>${protecting?'Preparing your comparison':'Looking at both sides'}</h3><p>${protecting?'The demo is showing how an approved protection step would work.':'Watch how browser context and document findings come together.'}</p><ol class="agent-steps">${steps.map((step,i)=>`<li class="${i<state.agentStep?'finished':i===state.agentStep?'running':''}"><span>${i<state.agentStep?icon('check',14):i+1}</span>${step}</li>`).join('')}</ol><p class="processing-note">Sample data only. No document processing or AI call is running.</p></div>`;
+}
+function reviewActions(){
+ const s=SCENARIOS[state.scenario];
+ if(s.signed)return `<div class="warning-box">${icon('alert',18)}<p><strong>Modification unavailable</strong> This sample contains a signature indicator. Changing the document may affect authenticity.</p></div><button class="button secondary full" data-action="original">Continue with original ${icon('arrow-right',17)}</button><p class="action-footnote">Review the recipient and confirm acceptance yourself.</p>`;
+ if(!s.findings.length)return `<button class="button primary full" data-action="original">Continue with original ${icon('arrow-right',17)}</button><p class="action-footnote">No changes are proposed for this sample.</p>`;
+ return `<label class="consent"><input type="checkbox" id="change-consent" ${state.changeConsent?'checked':''} ${!state.selected.length?'disabled':''}><span>I approve the selected changes in a separate copy.</span></label><button class="button primary full" data-action="protect" ${canProtect(state)?'':'disabled'}>${icon('shield',18)} Create protected copy</button><button class="text-button original-button" data-action="original">Keep the original and continue ${icon('arrow-right',14)}</button><p class="action-footnote">Custom-modified documents may not be accepted by the recipient.</p>`;
+}
+function readyPanel(){
+ const protectedCopy=state.output==='protected';const s=SCENARIOS[state.scenario];
+ return `<div class="ready-state"><span class="ready-icon">${icon(protectedCopy?'shield':'file',30)}</span><span class="eyebrow">${protectedCopy?'SIMULATED VERIFICATION':'ORIGINAL SELECTED'}</span><h3>${protectedCopy?'A copy you can review.':'Your original. Your choice.'}</h3><p>${protectedCopy?'Compare the original and protected previews on the portal.':'The sample is unchanged. Review the findings before continuing.'}</p></div>${protectedCopy?`<div class="verification-list">${state.selected.map(id=>`<p>${icon('check',16)}${id==='aadhaar'?'First eight digits masked; last four preserved':'Author metadata removed from the sample copy'}</p>`).join('')}<p>${icon('check',16)} Original sample remains unchanged</p></div><div class="simulation-note">These are demonstration outcomes, not results from an actual redaction or verification engine.</div>`:s.signed?`<div class="warning-box">${icon('info',17)}<p>Signature validity and QR contents have not been verified. No changes were made.</p></div>`:`<div class="simulation-note">No supported changes were applied. Absence of findings is not a safety guarantee.</div>`}${destination()}<div class="submit-block"><div class="section-title"><span>${icon('upload',17)} Final submission</span></div><label class="consent"><input type="checkbox" id="upload-consent" ${state.uploadConsent?'checked':''}><span>I reviewed this ${protectedCopy?'protected copy':'original'} and approve the simulated submission.</span></label><button class="button primary full" data-action="submit" ${canSubmit(state)?'':'disabled'}>Simulate submission ${icon('arrow-right',17)}</button><button class="text-button original-button" data-action="review">Back to findings</button><p class="action-footnote">Nothing leaves your browser in this demo.</p></div>`;
+}
+function submittedPanel(){
+ return `<div class="success-state"><span class="success-icon">${icon('check',34)}</span><span class="eyebrow">WALKTHROUGH COMPLETE</span><h3>You made the decision.</h3><p>You reviewed the file, considered its destination, and approved what to share.</p><div class="success-facts"><p>${icon('check',16)} ${state.output==='protected'?'Selected changes demonstrated':'Original sample retained'}</p><p>${icon('check',16)} Separate submission consent recorded</p><p>${icon('check',16)} Simulated destination added to the report</p></div></div>${destination()}<div class="final-note"><strong>No actual upload took place.</strong><p>A real, supported workflow would observe available request metadata during the approved upload.</p></div><button class="button primary full" data-action="reset">${icon('refresh',17)} Try this scenario again</button><button class="text-button original-button" data-action="explain">Understand the architecture ${icon('arrow-right',15)}</button>`;
+}
+function panel(){
+ let body;
+ if(['choose','selected'].includes(state.phase))body=initialPanel();
+ else if(['inspecting','protecting'].includes(state.phase))body=processingPanel();
+ else if(state.phase==='ready')body=readyPanel();
+ else if(done())body=submittedPanel();
+ else {const count=SCENARIOS[state.scenario].findings.length;body=`<div class="report-summary ${!count?'summary-clean':''}"><span>${icon(count?'eye':'check',20)}</span><div><strong>${count?`${count} things to review`:'No supported findings in this sample'}</strong><p>Sample report · review before sharing</p></div></div><section class="findings-section"><div class="section-title"><span>${icon('file',17)} What the file reveals</span></div>${findingRows()}</section>${destination()}<section class="review-actions">${reviewActions()}</section><details class="coverage-details"><summary>What this inspection does not establish</summary><p>The real product’s inspection would depend on supported file formats, OCR and parser coverage. A report cannot certify anonymity, recipient trust, signature validity or portal acceptance.</p></details>`;}
+ return `<aside class="privacy-panel" aria-label="PrivacyGate review"><div class="panel-heading"><span class="panel-brand">${icon('shield',24)}<span>PrivacyGate <small>Your upload review</small></span></span><span class="demo-mode"><i></i>DEMO MODE</span></div><div class="panel-body">${body}</div></aside>`;
+}
+function render(focusSelector){
+ const step=({choose:0,selected:1,inspecting:1,review:2,protecting:3,ready:4,submitted:5})[state.phase];
+ document.getElementById('stepper').innerHTML=['Choose sample','Inspect','Review findings','Choose protection','Approve submission'].map((label,i)=>`<li class="${i<step?'complete':i===step?'current':''}" ${i===step?'aria-current="step"':''}><span>${i<step?icon('check',13):i+1}</span><strong>${label}</strong></li>`).join('');
+ document.getElementById('demo-status').textContent=({choose:'Choose a synthetic sample to begin.',selected:'Sample selected. Inspection is ready.',inspecting:'Playing a simulated inspection.',review:'Sample disclosure report ready for review.',protecting:'Playing the simulated protection and verification steps.',ready:'File ready for review. Submission still requires your approval.',submitted:'Walkthrough complete. No actual upload occurred.'})[state.phase];
+ document.querySelectorAll('[data-scenario]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.scenario===state.scenario)));
+ workspace.innerHTML=portal()+panel();
+ if(hasReport())workspace.insertAdjacentHTML('beforeend',`<div class="trace-strip"><span>${icon('layers',16)} Sample workflow</span><span>Browser context</span>${icon('arrow-right',13)}<span>Document findings</span>${icon('arrow-right',13)}<span>Correlated report</span><button class="text-button" data-action="explain">View details</button></div>`);
+ if(focusSelector)workspace.querySelector(focusSelector)?.focus({preventScroll:true});
+}
+function dispatch(action,focus){state=transition(state,action);render(focus);}
+async function runSimulation(kind){
+ const version=++generation;dispatch({type:kind},'[data-action="reset"]');
+ for(let step=0;step<3;step++){if(version!==generation)return;state={...state,agentStep:step};render();await pause(550);}
+ if(version!==generation)return;dispatch({type:kind==='inspect'?'inspected':'verified'});
+ workspace.querySelector('.privacy-panel')?.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth',block:'nearest'});
+}
+document.addEventListener('click',event=>{
+ const scenarioButton=event.target.closest('[data-scenario]');if(scenarioButton){generation++;dispatch({type:'scenario',value:scenarioButton.dataset.scenario});return;}
+ const viewButton=event.target.closest('[data-view]');if(viewButton){dispatch({type:'view',value:viewButton.dataset.view},`[data-view="${viewButton.dataset.view}"]`);return;}
+ const button=event.target.closest('[data-action]');if(!button||button.disabled)return;
+ const action=button.dataset.action;
+ if(action==='start'){generation++;state=initialState('identity');dispatch({type:'choose'},'[data-action="inspect"]');workspace.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth',block:'start'});return;}
+ if(action==='explain'){document.getElementById('explanation').showModal();return;}
+ if(action==='close-explain'){document.getElementById('explanation').close();return;}
+ if(['inspect','protect'].includes(action)){
+  if(action==='inspect'&&state.phase!=='selected')return;
+  if(action==='protect'&&!canProtect(state))return;
+  runSimulation(action);return;
+ }
+ if(action==='reset')generation++;
+ if(['choose','original','review','submit','reset'].includes(action))dispatch({type:action},({choose:'[data-action="inspect"]',original:'#upload-consent',review:'[data-toggle], [data-action="original"]',submit:'[data-action="reset"]',reset:'[data-action="choose"]'})[action]);
+});
+document.addEventListener('change',event=>{
+ const el=event.target;
+ if(el.matches('[data-toggle]'))dispatch({type:'toggle',value:el.dataset.toggle},`[data-toggle="${el.dataset.toggle}"]`);
+ if(el.id==='change-consent')dispatch({type:'changeConsent',value:el.checked},'#change-consent');
+ if(el.id==='upload-consent')dispatch({type:'uploadConsent',value:el.checked},'#upload-consent');
+});
+document.getElementById('explanation').addEventListener('click',e=>{if(e.target===e.currentTarget)e.currentTarget.close();});
+hydrate(document);render();
